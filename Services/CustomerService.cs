@@ -16,6 +16,9 @@ namespace ACBAbankTask.Services
         {
             _connectionString = "Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True";
         }
+        public CustomerService()
+        {
+        }
 
         public async Task<int> CreateCustomer(CustomerDto customer)
         {
