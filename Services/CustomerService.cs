@@ -132,7 +132,7 @@ namespace ACBAbankTask.Services
             {
                 connection.Open();
 
-                string query = "SELECT * FROM Customers WHERE ";
+                string query = "SELECT * FROM Customers WHERE Name LIKE @Name OR Surname LIKE @Surname";
                 List<string> conditions = new List<string>();
 
                 if (!string.IsNullOrEmpty(name))
