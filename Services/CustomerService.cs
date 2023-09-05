@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ACBAbankTask.Entities;
 using ACBAbankTask.Models;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ACBAbankTask.Services
 {
@@ -125,73 +126,38 @@ namespace ACBAbankTask.Services
                 }
             }
         }
-        public async Task<IEnumerable<object>> SearchCustomers(string name = null, string surname = null, string email = null, string mobile = null)
+        public async Task<List<object>> SearchCustomers(string name = null, string surname = null, string email = null, string mobile = null)
         {
             using (var connection = new SqlConnection("Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True"))
-
             {
                 connection.Open();
 
-                string query = "SELECT * FROM Customers WHERE Name LIKE @Name OR Surname LIKE @Surname";
-                List<string> conditions = new List<string>();
-
-                if (!string.IsNullOrEmpty(name))
-                    conditions.Add("Name LIKE @Name");
-
-                if (!string.IsNullOrEmpty(surname))
-                    conditions.Add("Surname LIKE @Surname");
-
-                if (!string.IsNullOrEmpty(email))
-                    conditions.Add("Email LIKE @Email");
-
-                if (!string.IsNullOrEmpty(mobile))
-                    conditions.Add("Mobile LIKE @Mobile");
-
-                if (conditions.Count == 0)
-                    return new List<object>(); // No criteria provided, return an empty list
-
-                query += string.Join(" AND ", conditions);
+                string query = $"SELECT * FROM Customers WHERE Mobile LIKE '%{mobile}%' OR Surname LIKE '%{surname}%' OR Name LIKE '%{name}%' OR Email LIKE '%{email}%'";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
-                    // Add parameters for each criteria if they are not null or empty
-                    if (!string.IsNullOrEmpty(name))
-                        command.Parameters.AddWithValue("@Name", "%" + name + "%");
-
-                    if (!string.IsNullOrEmpty(surname))
-                        command.Parameters.AddWithValue("@Surname", "%" + surname + "%");
-
-                    if (!string.IsNullOrEmpty(email))
-                        command.Parameters.AddWithValue("@Email", "%" + email + "%");
-
-                    if (!string.IsNullOrEmpty(mobile))
-                        command.Parameters.AddWithValue("@Mobile", "%" + mobile + "%");
-
                     List<object> results = new List<object>();
-
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        var customer = new
                         {
-                            // Modify this part to match your Customers table structure
-                            var customer = new
-                            {
-                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                                Name = reader.GetString(reader.GetOrdinal("Name")),
-                                Surname = reader.GetString(reader.GetOrdinal("Surname")),
-                                Email = reader.GetString(reader.GetOrdinal("Email")),
-                                Mobile = reader.GetString(reader.GetOrdinal("Mobile")),
-                                // Add other columns here
-                            };
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Surname = reader.GetString(reader.GetOrdinal("Surname")),
+                            Email = reader.GetString(reader.GetOrdinal("Email")),
+                            Mobile = reader.GetString(reader.GetOrdinal("Mobile")),
+                            Passport = reader.GetString(reader.GetOrdinal("Passport")),
+                        };
 
-                            results.Add(customer);
-                        }
+                        results.Add(customer);
                     }
 
                     return results;
                 }
             }
         }
+
 
 
     }
