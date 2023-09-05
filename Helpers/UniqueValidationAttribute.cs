@@ -24,7 +24,7 @@ namespace ACBAbankTask.Helpers
         {
             // Retrieve the connection string
             string connectionString = configuration.GetConnectionString("DefaultConnection");
-            string tableName = "ACBAbank";
+            string tableName = "Customers";
             var propertyValue = value as string;
 
             SqlConnection connection = new SqlConnection(connectionString);

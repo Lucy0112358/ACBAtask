@@ -26,7 +26,13 @@ namespace ACBAbankTask.Controllers
         {
             return new string[] { "value1", "value2" };
         }
+        [HttpGet("search")]
+        public IActionResult SearchCustomers([FromQuery] string name, [FromQuery] string surname, [FromQuery] string mobile, [FromQuery] string passport)
+        {
+            var customers = _customerService.SearchCustomers(name, surname, mobile, passport);
 
+            return Ok(customers);
+        }
         // GET api/<CustomerController>/5
         [HttpGet("{id}")]
         public string Get(int id)
@@ -40,9 +46,9 @@ namespace ACBAbankTask.Controllers
         {
             if (customer == null)
             {
+
                 return BadRequest("Customer data is invalid.");
             }
-
             try
             {
                 int customerId = await _customerService.CreateCustomer(customer);
@@ -51,14 +57,32 @@ namespace ACBAbankTask.Controllers
             catch (Exception ex)
             {
                 // Handle the exception or log it as needed.
-                return StatusCode(500, "An error occurred while creating the customer.");
+                return StatusCode(500, ex.Message);
             }
         }
 
         // PUT api/<CustomerController>/5
+
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> EditCustomer(int id, [FromBody] CustomerDto updatedCustomer)
         {
+            try
+            {
+                var success = await _customerService.EditCustomerAsync(id, updatedCustomer);
+
+                if (success)
+                {
+                    return Ok("Customer updated successfully.");
+                }
+                else
+                {
+                    return NotFound("Customer not found or update failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         // DELETE api/<CustomerController>/5

@@ -22,7 +22,7 @@ namespace ACBAbankTask.Models
         public string Passport { get; set; }
         [Required(ErrorMessage = "Password is required")]
         [StringLength(20, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=]).*$", ErrorMessage = "Password must meet complexity requirements")]
+      //  [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=]).*$", ErrorMessage = "Password must meet complexity requirements")]
         public string Password { get; set; }
         public string IssuedBy { get; set; }
         public string Address { get; set; }
