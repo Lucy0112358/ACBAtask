@@ -132,7 +132,7 @@ namespace ACBAbankTask.Services
             {
                 connection.Open();
 
-                string query = $"SELECT * FROM Customers WHERE Mobile LIKE '%{mobile}%' OR Surname LIKE '%{surname}%' OR Name LIKE '%{name}%' OR Email LIKE '%{email}%'";
+                string query = $"SELECT * FROM Customers WHERE Mobile LIKE '{mobile}%' OR Surname LIKE '{surname}%' OR Name LIKE '{name}%' OR Email LIKE '{email}%'";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 using (SqlDataReader reader = command.ExecuteReader())
@@ -142,7 +142,7 @@ namespace ACBAbankTask.Services
                     {
                         var customer = new
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                         //   Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Surname = reader.GetString(reader.GetOrdinal("Surname")),
                             Email = reader.GetString(reader.GetOrdinal("Email")),
