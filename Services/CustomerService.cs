@@ -187,5 +187,40 @@ namespace ACBAbankTask.Services
             }
         }
 
+        public async Task<List<object>> GetAllCustomersAsync()
+        {
+            using (var connection = new SqlConnection("Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True"))
+
+            {
+                 connection.Open();
+
+                using (var command = new SqlCommand("SELECT * FROM Customers", connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        List<object> results = new List<object>();
+
+                        while (reader.Read())
+                        {
+                            var customer = new Customer
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Surname = reader.GetString(reader.GetOrdinal("Surname")),
+                                Mobile = reader.GetString(reader.GetOrdinal("Mobile")),
+                                Passport = reader.GetString(reader.GetOrdinal("Passport")),
+                               
+                            };
+
+                            results.Add(customer);
+                        }
+
+                        return results;
+                    }
+                }
+            }
+        }
+
+
     }
 }

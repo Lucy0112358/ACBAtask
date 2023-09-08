@@ -123,11 +123,14 @@ namespace ACBAbankTask.Controllers
             return Ok(customers);
         }
         // GET api/<CustomerController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+/*        [HttpGet]
+        public IActionResult GetAllCustomers()
         {
-            return "value";
+            var customers = _customerService.GetAllCustomersAsync();
+
+            return Ok(customers);
         }
+*/
 
         // POST api/<CustomerController>
         [HttpPost]
