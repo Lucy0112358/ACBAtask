@@ -116,9 +116,9 @@ namespace ACBAbankTask.Controllers
             return new string[] { "value1", "value2" };
         }
         [HttpGet("search")]
-        public IActionResult SearchCustomers([FromQuery] string name, [FromQuery] string surname, [FromQuery] string mobile, [FromQuery] string passport)
+        public IActionResult SearchCustomers([FromQuery] string name, [FromQuery] string surname, [FromQuery] string email, [FromQuery] string mobile)
         {
-            var customers = _customerService.SearchCustomers(name, surname, mobile, passport);
+            var customers = _customerService.SearchCustomers(name, surname, email, mobile);
 
             return Ok(customers);
         }

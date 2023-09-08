@@ -126,7 +126,7 @@ namespace ACBAbankTask.Services
                 }
             }
         }
-        public async Task<List<object>> SearchCustomers(string name = null, string surname = null, string email = null, string mobile = null)
+        public async Task<List<object>> SearchCustomers(string name, string surname, string email, string mobile)
         {
             using (var connection = new SqlConnection("Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True"))
             {
@@ -142,7 +142,7 @@ namespace ACBAbankTask.Services
                     {
                         var customer = new
                         {
-                         //   Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Surname = reader.GetString(reader.GetOrdinal("Surname")),
                             Email = reader.GetString(reader.GetOrdinal("Email")),
