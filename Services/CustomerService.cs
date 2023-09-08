@@ -158,7 +158,34 @@ namespace ACBAbankTask.Services
             }
         }
 
+        public async Task<bool> DeleteCustomerAsync(int customerId)
+        {
+            using (var connection = new SqlConnection("Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True"))
 
+            {
+                await connection.OpenAsync();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        using (var command = new SqlCommand("DELETE FROM Customers WHERE Id = @CustomerId", connection, transaction))
+                        {
+                            command.Parameters.Add(new SqlParameter("@CustomerId", SqlDbType.Int) { Value = customerId });
+                            await command.ExecuteNonQueryAsync();
+                        }
+
+                        transaction.Commit();
+                        return true; // Customer deleted successfully
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        return false; // Error occurred while deleting customer
+                    }
+                }
+            }
+        }
 
     }
 }

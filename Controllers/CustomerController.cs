@@ -176,8 +176,18 @@ namespace ACBAbankTask.Controllers
 
         // DELETE api/<CustomerController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> DeleteCustomer(int id)
         {
+            var isDeleted = await _customerService.DeleteCustomerAsync(id);
+
+            if (isDeleted)
+            {
+                return NoContent(); // 204 No Content - Customer deleted successfully
+            }
+            else
+            {
+                return NotFound(); // 404 Not Found - Customer not found or error occurred
+            }
         }
     }
 }
