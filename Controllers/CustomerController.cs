@@ -1,7 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using ACBAbankTask.Entities;
 using ACBAbankTask.Models;
 using ACBAbankTask.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +14,12 @@ namespace ACBAbankTask.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly CustomerService _customerService;
+        private readonly ICustomerService _customerService;
 
-
-        public CustomerController(IConfiguration configuration, CustomerService customerService)
+        public CustomerController(IConfiguration configuration, ICustomerService customerService)
         {
             _configuration = configuration;
-               _customerService = customerService;
+            _customerService = customerService;
         }
 
         [HttpGet("signin")]
@@ -74,47 +72,6 @@ namespace ACBAbankTask.Controllers
         }
 
 
-        /*        [HttpGet("signin")]
-                public IActionResult SignIn(string email, string password)
-                {
-                    var users = new List<User>()
-                {
-                    new User
-                    {
-                        Id=1,
-                        Email=email,
-                        Password="pass",
-                    }
-                };
-                    var user = users.FirstOrDefault(u => u.Email == email);
-                    return Ok(GetAccessToken(user.Email, user.Id));
-                }
-
-                private string GetAccessToken(string email, int id)
-                {
-                    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["SigningKey"]));
-                    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-                    var token = new JwtSecurityToken("issuer",
-                      "aud",
-                      new List<Claim>() {
-                        new Claim(JwtRegisteredClaimNames.NameId,id.ToString()),
-                        new Claim(JwtRegisteredClaimNames.Email,email),
-                        new Claim("role", "Admin")
-                      },
-                      expires: DateTime.UtcNow.AddDays(14),
-                      signingCredentials: credentials
-                      );
-                    var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-                    return accessToken;
-                }
-        */
-
-        // GET: api/<CustomerController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
         [HttpGet("search")]
         public IActionResult SearchCustomers([FromQuery] string name, [FromQuery] string surname, [FromQuery] string email, [FromQuery] string mobile)
         {
@@ -122,15 +79,16 @@ namespace ACBAbankTask.Controllers
 
             return Ok(customers);
         }
-        // GET api/<CustomerController>/5
-/*        [HttpGet]
+
+        // GET api/<CustomerController>
+        [HttpGet("GetAllCustomers")]
         public IActionResult GetAllCustomers()
         {
             var customers = _customerService.GetAllCustomersAsync();
 
             return Ok(customers);
         }
-*/
+
 
         // POST api/<CustomerController>
         [HttpPost]
@@ -154,7 +112,6 @@ namespace ACBAbankTask.Controllers
         }
 
         // PUT api/<CustomerController>/5
-
         [HttpPut("{id}")]
         public async Task<IActionResult> EditCustomer(int id, [FromBody] CustomerDto updatedCustomer)
         {
@@ -185,11 +142,11 @@ namespace ACBAbankTask.Controllers
 
             if (isDeleted)
             {
-                return NoContent(); // 204 No Content - Customer deleted successfully
+                return NoContent();
             }
             else
             {
-                return NotFound(); // 404 Not Found - Customer not found or error occurred
+                return NotFound();
             }
         }
     }

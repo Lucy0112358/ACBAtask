@@ -13,7 +13,6 @@ namespace ACBAbankTask.Helpers
             .AddJsonFile("appsettings.json")
             .Build();
 
-
         public UniqueValidationAttribute(string propertyNameToCheck, string column)
         {
             this.propertyNameToCheck = propertyNameToCheck;
@@ -31,7 +30,7 @@ namespace ACBAbankTask.Helpers
             connection.Open();
             if (propertyNameToCheck == "Email")
             {
-                // Apply specific logic for "Name"
+               
                 string sqlQuery = $"SELECT TOP 1 1 FROM {tableName} WHERE {column} = @ValueToCheck";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -46,9 +45,10 @@ namespace ACBAbankTask.Helpers
                     }
                 }
             }
+
             if (propertyNameToCheck == "Passport")
             {
-                // Apply specific logic for "Name"
+              
                 string sqlQuery = $"SELECT TOP 1 1 FROM {tableName} WHERE {column} = @ValueToCheck";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -64,7 +64,6 @@ namespace ACBAbankTask.Helpers
                 }
             }
             connection.Close();
-
 
             return ValidationResult.Success;
         }

@@ -1,30 +1,24 @@
-﻿
-using System;
-using System.Data;
-using Microsoft.Data.SqlClient;
-using System.Threading.Tasks;
+﻿using System.Data;
 using ACBAbankTask.Entities;
 using ACBAbankTask.Models;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace ACBAbankTask.Services
 {
-    public class CustomerService
+    public class CustomerService : BaseService, ICustomerService
     {
-        private readonly string _connectionString;
+        private readonly IConfiguration _configuration;
+        private readonly string _connectionString = string.Empty;
 
-        public CustomerService(string connectionString)
+        public CustomerService(IConfiguration configuration)
         {
-            _connectionString = "Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True";
-        }
-        public CustomerService()
-        {
+            _configuration = configuration;
+            _connectionString = _configuration.GetConnectionString("DefaultConnection");
         }
 
         public async Task<int> CreateCustomer(CustomerDto customer)
         {
-            using (var connection = new SqlConnection("Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True"))
+            using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
@@ -54,7 +48,7 @@ namespace ACBAbankTask.Services
 
                         // Execute the INSERT command and return the newly generated customer ID.
                         var customerId = Convert.ToInt32(await sqlCommand.ExecuteScalarAsync());
-                        // Commit the transaction.
+
                         transaction.Commit();
 
                         return customerId;
@@ -63,7 +57,7 @@ namespace ACBAbankTask.Services
                     {
                         // Rollback the transaction in case of any error.
                         transaction.Rollback();
-                        throw; // Optionally, you can log or handle the exception.
+                        throw;
                     }
                 }
             }
@@ -71,7 +65,7 @@ namespace ACBAbankTask.Services
 
         public async Task<bool> EditCustomerAsync(int customerId, CustomerDto updatedCustomer)
         {
-            using (var connection = new SqlConnection("Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True"))
+            using (var connection = new SqlConnection(_connectionString))
 
             {
                 await connection.OpenAsync();
@@ -80,7 +74,7 @@ namespace ACBAbankTask.Services
                 {
                     try
                     {
-                        // Your update SQL command here.
+
                         var sql = "UPDATE Customers SET Name = @Name, Surname = @Surname, Mobile = @Mobile,Passport = @Passport,Password = @Password,IssuedBy = @IssuedBy,Address = @Address,Email = @Email,IssuedAt = @IssuedAt,UpdatedAt = @UpdatedAt,Birthday = @Birthday WHERE Id = @customerId";
                         var customerIdParameter = new SqlParameter("@CustomerId", SqlDbType.Int) { Value = customerId };
 
@@ -121,16 +115,17 @@ namespace ACBAbankTask.Services
                     catch
                     {
                         transaction.Rollback();
-                        throw; // Re-throw the exception to handle it at a higher level.
+                        throw;
                     }
                 }
             }
         }
+
         public async Task<List<object>> SearchCustomers(string name, string surname, string email, string mobile)
         {
-            using (var connection = new SqlConnection("Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True"))
+            using (var connection = new SqlConnection(_connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
 
                 string query = $"SELECT * FROM Customers WHERE Mobile LIKE '{mobile}%' OR Surname LIKE '{surname}%' OR Name LIKE '{name}%' OR Email LIKE '{email}%'";
 
@@ -148,6 +143,13 @@ namespace ACBAbankTask.Services
                             Email = reader.GetString(reader.GetOrdinal("Email")),
                             Mobile = reader.GetString(reader.GetOrdinal("Mobile")),
                             Passport = reader.GetString(reader.GetOrdinal("Passport")),
+                            Password = reader.GetString(reader.GetOrdinal("Password")),
+                            IssuedBy = reader.GetString(reader.GetOrdinal("IssuedBy")),
+                            Address = reader.GetString(reader.GetOrdinal("Address")),
+                            IssuedAt = reader.GetDateTime(reader.GetOrdinal("IssuedAt")),
+                            CratedAt = reader.GetDateTime(reader.GetOrdinal("CratedAt")),
+                            UpdatedAt = reader.GetDateTime(reader.GetOrdinal("UpdatedAt")),
+                            Birthday = reader.GetDateTime(reader.GetOrdinal("Birthday")),
                         };
 
                         results.Add(customer);
@@ -160,7 +162,7 @@ namespace ACBAbankTask.Services
 
         public async Task<bool> DeleteCustomerAsync(int customerId)
         {
-            using (var connection = new SqlConnection("Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True"))
+            using (var connection = new SqlConnection(_connectionString))
 
             {
                 await connection.OpenAsync();
@@ -176,12 +178,12 @@ namespace ACBAbankTask.Services
                         }
 
                         transaction.Commit();
-                        return true; // Customer deleted successfully
+                        return true;
                     }
                     catch (Exception)
                     {
                         transaction.Rollback();
-                        return false; // Error occurred while deleting customer
+                        return false;
                     }
                 }
             }
@@ -189,11 +191,9 @@ namespace ACBAbankTask.Services
 
         public async Task<List<object>> GetAllCustomersAsync()
         {
-            using (var connection = new SqlConnection("Server=localhost\\SQLEXPRESS;Database=ACBAbank;Trusted_Connection=True;TrustServerCertificate=True"))
-
+            using (var connection = new SqlConnection(_connectionString))
             {
-                 connection.Open();
-
+                await connection.OpenAsync();
                 using (var command = new SqlCommand("SELECT * FROM Customers", connection))
                 {
                     using (var reader = command.ExecuteReader())
@@ -209,7 +209,14 @@ namespace ACBAbankTask.Services
                                 Surname = reader.GetString(reader.GetOrdinal("Surname")),
                                 Mobile = reader.GetString(reader.GetOrdinal("Mobile")),
                                 Passport = reader.GetString(reader.GetOrdinal("Passport")),
-                               
+                                Password = reader.GetString(reader.GetOrdinal("Password")),
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
+                                IssuedBy = reader.GetString(reader.GetOrdinal("IssuedBy")),
+                                Address = reader.GetString(reader.GetOrdinal("Address")),
+                                IssuedAt = reader.GetDateTime(reader.GetOrdinal("IssuedAt")),
+                                CratedAt = reader.GetDateTime(reader.GetOrdinal("CratedAt")),
+                                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("UpdatedAt")),
+                                Birthday = reader.GetDateTime(reader.GetOrdinal("Birthday")),
                             };
 
                             results.Add(customer);
@@ -220,7 +227,5 @@ namespace ACBAbankTask.Services
                 }
             }
         }
-
-
     }
 }

@@ -245,3 +245,6 @@ C:\Users\Lusine\Desktop\ACBAbankTask\bin\Debug\net7.0\tr\Microsoft.CodeAnalysis.
 C:\Users\Lusine\Desktop\ACBAbankTask\bin\Debug\net7.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Lusine\Desktop\ACBAbankTask\bin\Debug\net7.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Lusine\Desktop\ACBAbankTask\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Lusine\Desktop\ACBAbankTask\bin\Debug\net7.0\BCrypt.Net-Next.dll
+C:\Users\Lusine\Desktop\ACBAbankTask\bin\Debug\net7.0\ACBAbankTask.Service.dll
+C:\Users\Lusine\Desktop\ACBAbankTask\bin\Debug\net7.0\ACBAbankTask.Service.pdb

@@ -5,7 +5,6 @@ namespace ACBAbankTask.Models
 {
     public class CustomerDto
     {
-
         [Required(ErrorMessage = "Name is required")]
         [RegularExpression(@"^[A-Za-z\s]*$", ErrorMessage = "Invalid characters in the name")]
         public string Name { get; set; }
@@ -22,7 +21,7 @@ namespace ACBAbankTask.Models
         public string Passport { get; set; }
         [Required(ErrorMessage = "Password is required")]
         [StringLength(20, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters")]
-      //  [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=]).*$", ErrorMessage = "Password must meet complexity requirements")]
+        [RegularExpression("^((?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])|(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[^a-zA-Z0-9])|(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[^a-zA-Z0-9])|(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^a-zA-Z0-9])).{8,}$", ErrorMessage = "Passwords must be at least 8 characters and contain at 3 of 4 of the following: upper case (A-Z), lower case (a-z), number (0-9) and special character (e.g. !@#$%^&*)")]
         public string Password { get; set; }
         public string IssuedBy { get; set; }
         public string Address { get; set; }

@@ -1,5 +1,3 @@
-
-using System.Configuration;
 using System.Text;
 using ACBAbankTask.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,21 +12,29 @@ namespace ACBAbankTask
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddJsonFile("appsettings.json");
-            builder.Services.AddScoped<CustomerService>();
+
+
+            IConfiguration configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SigningKey"]))
-        };
-    });
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SigningKey"]))
+                };
+            });
+
+            builder.Services.AddScoped<IBaseService, BaseService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddAuthorization();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -48,22 +54,19 @@ namespace ACBAbankTask
                         Type = ReferenceType.SecurityScheme
                     }
                 };
-
                 c.AddSecurityDefinition("Bearer",
                    jwtSecurityScheme);
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement {
                     {jwtSecurityScheme,Array.Empty<string>() }
                     });
-
             });
+
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(); 
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -73,7 +76,6 @@ namespace ACBAbankTask
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
