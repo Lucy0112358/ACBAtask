@@ -5,15 +5,14 @@
         public int Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
-        public string Mobile { get; set; }
-        public string Passport { get; set; }
-        public string Password { get; set; }
-        public string IssuedBy { get; set; }
-        public string Address { get; set; }
+        public int Gender { get; set; }       
         public string Email { get; set; }
-        public DateTime IssuedAt { get; set; }
-        public DateTime CratedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime Birthday { get; set; }
+        public List<Document> Documents { get; set; } = new List<Document>();
+        public List<Address> Address { get; set; } = new List<Address>();
+        public List<Mobile> Mobile { get; set; } = new List<Mobile>();
+
     }
 }

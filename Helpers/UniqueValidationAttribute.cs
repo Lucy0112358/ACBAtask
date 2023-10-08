@@ -30,7 +30,7 @@ namespace ACBAbankTask.Helpers
             connection.Open();
             if (propertyNameToCheck == "Email")
             {
-               
+
                 string sqlQuery = $"SELECT TOP 1 1 FROM {tableName} WHERE {column} = @ValueToCheck";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))
@@ -48,7 +48,7 @@ namespace ACBAbankTask.Helpers
 
             if (propertyNameToCheck == "Passport")
             {
-              
+
                 string sqlQuery = $"SELECT TOP 1 1 FROM {tableName} WHERE {column} = @ValueToCheck";
 
                 using (SqlCommand command = new SqlCommand(sqlQuery, connection))

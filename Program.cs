@@ -1,5 +1,8 @@
 using System.Text;
-using ACBAbankTask.Services;
+using ACBAbankTask.Repository.Impl;
+using ACBAbankTask.Repository.Interfaces;
+using ACBAbankTask.Services.Impl;
+using ACBAbankTask.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -23,8 +26,8 @@ namespace ACBAbankTask
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
@@ -35,6 +38,9 @@ namespace ACBAbankTask
 
             builder.Services.AddScoped<IBaseService, BaseService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddAuthorization();
             builder.Services.AddSwaggerGen(c =>
             {

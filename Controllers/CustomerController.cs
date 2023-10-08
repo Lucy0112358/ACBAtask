@@ -1,112 +1,47 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using ACBAbankTask.DataModels;
 using ACBAbankTask.Models;
-using ACBAbankTask.Services;
+using ACBAbankTask.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ACBAbankTask.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly ICustomerService _customerService;
 
-        public CustomerController(IConfiguration configuration, ICustomerService customerService)
-        {
-            _configuration = configuration;
+        public CustomerController(ICustomerService customerService)
+        {        
             _customerService = customerService;
-        }
-
-        [HttpGet("signin")]
-        public IActionResult SignIn(string email, string password)
-        {
-            // Create a SqlConnection using the connection string from appsettings.json
-            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                connection.Open();
-
-                // Create a SqlCommand to execute your SQL query
-                using (var command = new SqlCommand("SELECT Id, Email, Password FROM Customers WHERE Email = @Email AND Password = @Password", connection))
-                {
-                    command.Parameters.AddWithValue("@Email", email);
-                    command.Parameters.AddWithValue("@Password", password);
-
-                    using (var reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            int userId = reader.GetInt32(0);
-                            string userEmail = reader.GetString(1);
-                            return Ok(GetAccessToken(userEmail, userId));
-                        }
-                        else
-                        {
-                            return Unauthorized("Invalid email or password");
-                        }
-                    }
-                }
-            }
-        }
-
-        private string GetAccessToken(string email, int id)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SigningKey"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken("issuer",
-              "aud",
-              new List<Claim>() {
-            new Claim(JwtRegisteredClaimNames.NameId, id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim("role", "Admin")
-              },
-              expires: DateTime.UtcNow.AddDays(14),
-              signingCredentials: credentials
-            );
-            var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-            return accessToken;
         }
 
 
         [HttpGet("search")]
-        public IActionResult SearchCustomers([FromQuery] string name, [FromQuery] string surname, [FromQuery] string email, [FromQuery] string mobile)
+        public IActionResult SearchCustomers([FromQuery] string name, [FromQuery] string surname, [FromQuery] string email, [FromQuery] string mobile, [FromQuery] string document, [FromQuery] int pageNumber)
         {
-            var customers = _customerService.SearchCustomers(name, surname, email, mobile);
+            List<object> customers = _customerService.SearchCustomers(name, surname, email, mobile, pageNumber, document);
 
             return Ok(customers);
         }
-
-        // GET api/<CustomerController>
-        [HttpGet("GetAllCustomers")]
-        public IActionResult GetAllCustomers()
-        {
-            var customers = _customerService.GetAllCustomersAsync();
-
-            return Ok(customers);
-        }
-
 
         // POST api/<CustomerController>
-        [HttpPost]
-        public async Task<IActionResult> CreateCustomer(CustomerDto customer)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCustomer(RequestDto request)
         {
-            if (customer == null)
+            if (request.customer == null)
             {
-
                 return BadRequest("Customer data is invalid.");
             }
             try
             {
-                int customerId = await _customerService.CreateCustomer(customer);
-                return Ok(customer);
+                int customerId = await _customerService.CreateCustomer(request.customer, request.documents, request.address, request.mobile);
+                return Ok(request.customer);
             }
             catch (Exception ex)
             {
-                // Handle the exception or log it as needed.
                 return StatusCode(500, ex.Message);
             }
         }
@@ -117,16 +52,8 @@ namespace ACBAbankTask.Controllers
         {
             try
             {
-                var success = await _customerService.EditCustomerAsync(id, updatedCustomer);
-
-                if (success)
-                {
-                    return Ok("Customer updated successfully.");
-                }
-                else
-                {
-                    return NotFound("Customer not found or update failed.");
-                }
+                var success = await _customerService.EditCustomerAsync(id, updatedCustomer);             
+                    return Ok("Customer updated successfully.");              
             }
             catch (Exception ex)
             {
