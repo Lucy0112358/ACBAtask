@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using ACBAbankTask.DataModels;
+using ACBAbankTask.Helpers.Validations;
 using ACBAbankTask.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,16 +14,22 @@ namespace ACBAbankTask.Controllers
     {
         private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
+        private readonly UserValidation _validUser;
 
-        public AuthController(IConfiguration configuration, IUserService userService)
+        public AuthController(IConfiguration configuration, IUserService userService, UserValidation validUser)
         {
             _configuration = configuration;
             _userService = userService;
+            _validUser = validUser;
         }
 
         [HttpPost("register")]
         public IActionResult Register(UserDto user)
         {
+            if (!_validUser.IsEmailUnique(user.Email))
+            {
+                return BadRequest("Ներմուծված էլ․ փոստը արդեն առկա է տվյալների բազայում");
+            }
             var success = _userService.Register(user);
             return Ok(success);
         }

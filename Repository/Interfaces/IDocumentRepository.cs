@@ -1,8 +1,8 @@
 ﻿using ACBAbankTask.DataModels;
 
-namespace ACBAbankTask.Services.Interfaces
+namespace ACBAbankTask.Repository.Interfaces
 {
-    public interface IDocumentService
+    public interface IDocumentRepository
     {
         Task<int> CreateDocumentAsync(DocumentDto document);
     }

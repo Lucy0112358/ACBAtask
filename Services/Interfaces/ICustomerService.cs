@@ -6,7 +6,7 @@ namespace ACBAbankTask.Services.Interfaces
 {
     public interface ICustomerService : IBaseService
     {
-        Task<int> CreateCustomer(CustomerDto customer, List<DocumentDto> documents, List<AddressDto> address, List<MobileDto> mobile);
+        Task<int> CreateCustomer(CustomerDto customer, List<DocumentDto> documents, List<AddressDto> addresses, List<MobileDto> mobiles);
 
         Task<bool> EditCustomerAsync(int customerId, CustomerDto updatedCustomer);
 

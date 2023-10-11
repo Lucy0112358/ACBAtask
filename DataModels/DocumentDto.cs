@@ -11,6 +11,6 @@ namespace ACBAbankTask.DataModels
         public string Number { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public int CustomerId { get; set; }
+        public int customerId { get; set; }
     }
 }

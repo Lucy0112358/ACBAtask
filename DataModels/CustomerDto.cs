@@ -5,17 +5,17 @@ namespace ACBAbankTask.Models
 {
     public class CustomerDto
     {
-        [Required(ErrorMessage = "Name is required")]
-        [RegularExpression(@"^[A-Za-z\s]*$", ErrorMessage = "Invalid characters in the name")]
+        [Required(ErrorMessage = "Անունը պարտադիր լրացման ենթակա դաշտ է")]
+        [RegularExpression(@"^[A-Za-z\s]*$", ErrorMessage = "Անունը պարունակում է անվավեր սիմվոլներ")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Surname is required")]
-        [RegularExpression(@"^[A-Za-z\s]*$", ErrorMessage = "Invalid characters in the name")]
+        [Required(ErrorMessage = "Սա պարտադիր լրացման ենթակա դաշտ է")]
+        [RegularExpression(@"^[A-Za-z\s]*$", ErrorMessage = "Անվավեր սիմվոլների ճանաչում")]
         public string Surname { get; set; }
 
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email address")]
- /*       [UniqueValidation("Email", "Email")]*/
+        [Required(ErrorMessage = "էլ․ փոստը պարտադիր լրացման դաշտ է")]
+        [EmailAddress(ErrorMessage = "Ներմուծված արժեքը սխալ է")]
+        [UniqueValidation("Email", "Email", ErrorMessage = "Ներմուծված էլ․ փոստը արդեն առկա է տվյալների բազայում")]
         public string Email { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]

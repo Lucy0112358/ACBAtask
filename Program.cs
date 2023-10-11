@@ -1,4 +1,5 @@
 using System.Text;
+using ACBAbankTask.Helpers.Validations;
 using ACBAbankTask.Repository.Impl;
 using ACBAbankTask.Repository.Interfaces;
 using ACBAbankTask.Services.Impl;
@@ -15,7 +16,6 @@ namespace ACBAbankTask
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddJsonFile("appsettings.json");
-
 
             IConfiguration configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -36,11 +36,24 @@ namespace ACBAbankTask
                 };
             });
 
+            //Injection of services
             builder.Services.AddScoped<IBaseService, BaseService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IUserService, UserService>();            
+            builder.Services.AddScoped<IDocumentService, DocumentService>();
+            builder.Services.AddScoped<IAddressService, AddressService>();
+            builder.Services.AddScoped<IMobileService, MobileService>();
+            builder.Services.AddScoped<DocumentValidation>();
+            builder.Services.AddScoped<UserValidation>();
+
+            //Injection of Repository
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+            builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+            builder.Services.AddScoped<IMobileRepository, MobileRepository>();
+
+            //Identity 
             builder.Services.AddAuthorization();
             builder.Services.AddSwaggerGen(c =>
             {

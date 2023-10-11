@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ACBAbankTask.Controllers
 {
-    [Authorize]
+
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase

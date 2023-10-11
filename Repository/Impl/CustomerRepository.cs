@@ -3,6 +3,7 @@ using System.Data;
 using ACBAbankTask.DataModels;
 using ACBAbankTask.Models;
 using ACBAbankTask.Repository.Interfaces;
+using ACBAbankTask.Services.Interfaces;
 using Microsoft.Data.SqlClient;
 
 namespace ACBAbankTask.Repository.Impl
@@ -11,20 +12,21 @@ namespace ACBAbankTask.Repository.Impl
     {
         private readonly IConfiguration _configuration;
         private readonly string _connectionString = string.Empty;
+        private readonly IDocumentService _documentService;
 
-        public CustomerRepository(IConfiguration configuration)
+        public CustomerRepository(IConfiguration configuration, IDocumentService documentService)
         {
             _configuration = configuration;
             _connectionString = _configuration.GetConnectionString("DefaultConnection");
-
+            _documentService = documentService;
         }
-        public async Task<int> CreateCustomer(CustomerDto customer, List<DocumentDto> documents, List<AddressDto> address, List<MobileDto> mobile)
+        public async Task<int> CreateCustomer(CustomerDto customer)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
 
-            using var transaction = connection.BeginTransaction();
-            try
+            using (var transaction = connection.BeginTransaction())
+                try
             {
                 var sqlCommand = new SqlCommand(
                     "INSERT INTO Customers (name, surname, email, created_at, updated_at, birthday, gender) " +
@@ -40,58 +42,9 @@ namespace ACBAbankTask.Repository.Impl
                 sqlCommand.Parameters.AddWithValue("@UpdatedAt", customer.UpdatedAt);
                 sqlCommand.Parameters.AddWithValue("@Birthday", customer.Birthday);
                 sqlCommand.Parameters.AddWithValue("@Gender", customer.Gender);
-                var customerId = Convert.ToInt32(await sqlCommand.ExecuteScalarAsync());
+                var customerId = Convert.ToInt32(await sqlCommand.ExecuteScalarAsync());             
 
-                foreach (var document in documents)
-                {
-                    sqlCommand.CommandText = "INSERT INTO Documents (title, issued_at, expires_at, issued_by, number, created_at, updated_at, customer_id) " +
-                    "VALUES (@Title, @IssuedAt, @ExpiresAt, @IssuedBy, @Number, @CreatedAt, @UpdatedAt, @CustomerId); " +
-                    "SELECT SCOPE_IDENTITY()";
-
-                    sqlCommand.Parameters.Clear();
-                    sqlCommand.Parameters.AddWithValue("@Title", document.Title);
-                    sqlCommand.Parameters.AddWithValue("@IssuedAt", document.IssuedAt);
-                    sqlCommand.Parameters.AddWithValue("@ExpiresAt", document.ExpiresAt);
-                    sqlCommand.Parameters.AddWithValue("@IssuedBy", document.IssuedBy);
-                    sqlCommand.Parameters.AddWithValue("@Number", document.Number);
-                    sqlCommand.Parameters.AddWithValue("@CreatedAt", document.CreatedAt);
-                    sqlCommand.Parameters.AddWithValue("@UpdatedAt", document.UpdatedAt);
-                    sqlCommand.Parameters.AddWithValue("@CustomerId", customerId);
-
-                    sqlCommand.ExecuteNonQuery();
-                }
-
-                foreach (var addresses in address)
-                {
-                    sqlCommand.CommandText = "INSERT INTO Addresses (title, building, street, city, country, customer_id) " +
-                    "VALUES (@Title, @Building, @Street, @City, @Country, @CustomerId); " +
-                    "SELECT SCOPE_IDENTITY()";
-
-                    sqlCommand.Parameters.Clear();
-                    sqlCommand.Parameters.AddWithValue("@Title", addresses.Title);
-                    sqlCommand.Parameters.AddWithValue("@Building", addresses.Building);
-                    sqlCommand.Parameters.AddWithValue("@Street", addresses.Street);
-                    sqlCommand.Parameters.AddWithValue("@City", addresses.City);
-                    sqlCommand.Parameters.AddWithValue("@Country", addresses.Country);
-                    sqlCommand.Parameters.AddWithValue("@CustomerId", customerId);
-
-                    sqlCommand.ExecuteNonQuery();
-                }
-
-                foreach (var numbers in mobile)
-                {
-                    sqlCommand.CommandText = "INSERT INTO Mobile (title, country_code, number, customer_id) " +
-                    "VALUES (@Title, @CountryCode, @Number, @CustomerId); " +
-                    "SELECT SCOPE_IDENTITY()";
-
-                    sqlCommand.Parameters.Clear();
-                    sqlCommand.Parameters.AddWithValue("@Title", numbers.Title);
-                    sqlCommand.Parameters.AddWithValue("@CountryCode", numbers.CountryCode);
-                    sqlCommand.Parameters.AddWithValue("@Number", numbers.Number);
-                    sqlCommand.Parameters.AddWithValue("@CustomerId", customerId);
-
-                    sqlCommand.ExecuteNonQuery();
-                }
+               
 
                 transaction.Commit();
 

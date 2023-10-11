@@ -1,45 +1,41 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ACBAbankTask.DataModels;
+using ACBAbankTask.Helpers.Validations;
+using ACBAbankTask.Services.Impl;
+using ACBAbankTask.Services.Interfaces;
+using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ACBAbankTask.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class DocumentsController : ControllerBase
     {
-        // GET: api/<DocumentsController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly IDocumentService _documentService;
+        private readonly DocumentValidation _validDoc;
+
+        public DocumentsController(DocumentValidation validDoc, IDocumentService documentService)
         {
-            return new string[] { "value1", "value2" };
+            _documentService = documentService;
+            _validDoc = validDoc;
         }
 
-        // GET api/<DocumentsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
 
         // POST api/<DocumentsController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("save_document")]
+        public async Task<IActionResult> PostAsync([FromBody] DocumentDto document)
         {
-        }
-
-        // PUT api/<DocumentsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<DocumentsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var validationResult = _validDoc.ValidateDocument(document);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+            int documentId = await _documentService.CreateDocumentAsync(document);
+            return Ok(document);
         }
     }
 }
